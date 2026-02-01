@@ -1,0 +1,7 @@
+IDLE
+  -> COLLECT
+  -> ACCUMULATE
+  -> APPLY
+  -> CHECK (symmetry_ok, error_ok, true_delivery)
+  -> SEAL (seal_start → seal_ready)
+  -> DONE

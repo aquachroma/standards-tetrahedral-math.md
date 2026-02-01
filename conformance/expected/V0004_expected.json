@@ -1,0 +1,36 @@
+{
+  "vector_id": "V0004",
+  "description": "Asymmetric lattice, zero error — FALSE case.",
+  "initial_phase_state": [
+    [0,0,0],[0,0,0],[0,0,0],[0,0,0],
+    [0,0,0],[4096,0,0],[0,0,0],[0,0,0],
+    [0,0,0],[0,0,0],[0,0,0],[0,0,0],
+    [0,0,0],[0,0,0],[0,0,0],[0,0,0]
+  ],
+  "plugins": {
+    "alpha": {
+      "id": "alpha",
+      "domain": "Refraction",
+      "warp_vector": [0,0,0],
+      "error": 0,
+      "version": "1.0.0",
+      "status": "OK"
+    },
+    "beta": {
+      "id": "beta",
+      "domain": "FrameDrag",
+      "warp_vector": [0,0,0],
+      "error": 0,
+      "version": "1.0.0",
+      "status": "OK"
+    },
+    "gamma": {
+      "id": "gamma",
+      "domain": "Jitter",
+      "warp_vector": [0,0,0],
+      "error": 0,
+      "version": "1.0.0",
+      "status": "OK"
+    }
+  }
+}

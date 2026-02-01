@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ISO-16 Expected Output Schema",
+  "type": "object",
+
+  "properties": {
+    "vector_id": {
+      "type": "string",
+      "description": "Identifier matching the input vector (e.g., V0001)"
+    },
+
+    "warp_total": {
+      "type": "array",
+      "description": "Summed warp vector (3×Q16.16)",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "type": "integer" }
+    },
+
+    "error_total": {
+      "type": "integer",
+      "description": "Total accumulated error (Q16.16)"
+    },
+
+    "phase_state_warped": {
+      "type": "array",
+      "description": "Warped PhaseState (16 phases × 3 coordinates)",
+      "minItems": 16,
+      "maxItems": 16,
+      "items": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": { "type": "integer" }
+      }
+    },
+
+    "symmetry_ok": {
+      "type": "boolean",
+      "description": "TRUE if symmetry threshold satisfied"
+    },
+
+    "error_ok": {
+      "type": "boolean",
+      "description": "TRUE if error_total <= epsilon"
+    },
+
+    "true_delivery": {
+      "type": "boolean",
+      "description": "Final TRUE/FALSE determination"
+    },
+
+    "tetra_seal": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA3-256 seal in lowercase hex"
+    }
+  },
+
+  "required": [
+    "vector_id",
+    "warp_total",
+    "error_total",
+    "phase_state_warped",
+    "symmetry_ok",
+    "error_ok",
+    "true_delivery",
+    "tetra_seal"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "vector_id": "SEALTEST",
+  "initial_phase_state": [
+    [0,0,0],[0,0,0],[0,0,0],[0,0,0],
+    [0,0,0],[0,0,0],[0,0,0],[0,0,0],
+    [0,0,0],[0,0,0],[0,0,0],[0,0,0],
+    [0,0,0],[0,0,0],[0,0,0],[0,0,0]
+  ],
+  "plugins": {
+    "alpha": {
+      "id": "alpha",
+      "domain": "Refraction",
+      "warp_vector": [256,512,768],
+      "error": 1,
+      "version": "1.0.0",
+      "status": "OK"
+    }
+  },
+  "implementation_id": "iso16-ref",
+  "timestamp": 1700000000000000,
+  "nonce": "000102030405060708090a0b0c0d0e0f"
+}

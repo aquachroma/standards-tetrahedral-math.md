@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ISO-16 Conformance Vector Schema",
+  "type": "object",
+
+  "properties": {
+    "vector_id": {
+      "type": "string",
+      "description": "Canonical identifier (e.g., V0001)"
+    },
+
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of the test vector"
+    },
+
+    "initial_phase_state": {
+      "type": "array",
+      "minItems": 16,
+      "maxItems": 16,
+      "description": "16 phases, each containing 3 Q16.16 coordinates",
+      "items": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "integer",
+          "description": "Q16.16 signed integer"
+        }
+      }
+    },
+
+    "plugins": {
+      "type": "object",
+      "description": "Plugin outputs for this vector",
+      "patternProperties": {
+        "^[a-zA-Z0-9_]+$": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "domain": {
+              "type": "string",
+              "enum": ["Refraction", "FrameDrag", "Jitter", "Custom"]
+            },
+            "warp_vector": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": { "type": "integer" }
+            },
+            "error": {
+              "type": "integer",
+              "description": "Q16.16 error term"
+            },
+            "version": { "type": "string" },
+            "status": {
+              "type": "string",
+              "enum": ["OK", "INSUFFICIENT_DATA", "OUT_OF_RANGE", "TIMEOUT", "SENSOR_MISMATCH"]
+            }
+          },
+          "required": ["id", "domain", "warp_vector", "error", "version", "status"]
+        }
+      },
+      "minProperties": 1
+    }
+  },
+
+  "required": ["vector_id", "initial_phase_state", "plugins"]
+}
