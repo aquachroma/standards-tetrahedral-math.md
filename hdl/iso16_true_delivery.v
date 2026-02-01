@@ -1,7 +1,11 @@
 `timescale 1ns/1ps
-// -----------------------------------------------------------------------------
+/*
 // ISO‑16 True Delivery Loop — Reference RTL (informative)
-// -----------------------------------------------------------------------------
+ * ------------------------------------------
+ * Version: 1.1 (Cycle-Accurate with Python Runner v1.0)
+ * * This module is the "JUDICIAL ANCHOR" for the ISO-16 standard.
+ * It provides the temporal structure for the Tetra-Seal.
+ */
 // This module is an informative, non‑normative reference implementation of the
 // ISO‑16 True Delivery Loop state machine. It is intended as a behavioral and
 // timing oracle for vendors and auditors.

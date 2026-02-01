@@ -1,92 +1,89 @@
-`timescale 1ns/1ps
-// -----------------------------------------------------------------------------
-// ISO‑16 Waveform Logger (informative reference module)
-// -----------------------------------------------------------------------------
-// This module is a passive, zero‑logic waveform capture wrapper. It exposes the
-// canonical ISO‑16 True Delivery Loop signals with stable, readable names so
-// that VCD/FSDB waveform dumps match the Golden Waveform Templates.
-//
-// This module:
-//   - performs NO computation
-//   - adds NO timing
-//   - simply re‑exports DUT signals for waveform visibility
-//   - emits optional $display audit markers
-//
-// Vendors wrap their DUT with this module during conformance testing.
-// -----------------------------------------------------------------------------
+/*
+ * ISO‑16 Waveform Logger (Informative)
+ * ------------------------------------
+ * This module provides a canonical tap point for observing the
+ * True Delivery Loop state machine and associated accumulators,
+ * checks, and seal boundary signals.
+ *
+ * It is intended for:
+ *   • simulation waveform capture (VCD/FSDB)
+ *   • FPGA ILA / logic analyzer probing
+ *   • cross‑domain verification against the Python VCD logger
+ *
+ * The logger is INFORMATIVE.
+ * The signals it observes are NORMATIVE.
+ */
 
-module iso16_waveform_logger #(
-    parameter integer WARP_WIDTH   = 16,
-    parameter integer ERROR_WIDTH  = 32
-)(
-    input  wire                     clk,
-    input  wire                     rst_n,
+module iso16_waveform_logger (
+    input  wire         clk,
+    input  wire         rst_n,
 
-    // State machine
-    input  wire [2:0]               state,
+    // Core state and cycle counter
+    input  wire [3:0]   state_i,
+    input  wire [31:0]  cycle_i,
 
-    // Accumulators
-    input  wire [WARP_WIDTH-1:0]    warp_sum_x,
-    input  wire [WARP_WIDTH-1:0]    warp_sum_y,
-    input  wire [WARP_WIDTH-1:0]    warp_sum_z,
-    input  wire [ERROR_WIDTH-1:0]   error_sum,
+    // Accumulation and check signals
+    input  wire [31:0]  warp_sum_x_i,
+    input  wire [31:0]  error_sum_i,
+    input  wire         symmetry_ok_i,
+    input  wire         error_ok_i,
+    input  wire         true_delivery_i,
 
-    // Check results
-    input  wire                     symmetry_ok,
-    input  wire                     error_ok,
-    input  wire                     true_delivery,
+    // Seal boundary signals
+    input  wire         seal_start_i,
+    input  wire         seal_ready_i,
+    input  wire [255:0] seal_out_i,
 
-    // Seal boundary
-    input  wire                     seal_start,
-    input  wire                     seal_ready,
-    input  wire [255:0]             seal
+    // Latched check results at SEAL boundary (informative)
+    output wire         symmetry_latched_o,
+    output wire         error_latched_o
 );
 
-    // -------------------------------------------------------------------------
-    // Waveform aliases (clean names for VCD/FSDB)
-    // -------------------------------------------------------------------------
-    // These wires exist ONLY to give waveform viewers stable, readable names.
-    // They do not change logic or timing.
-    // -------------------------------------------------------------------------
+    // --------------------------------------------------------------------
+    // Internal anchor registers
+    // --------------------------------------------------------------------
+    // These registers capture the check results at the SEAL state boundary.
+    // This provides a stable reference for waveform inspection and ILA
+    // triggering without altering functional behavior.
+    //
+    // SEAL state encoding (4'h5) must match iso16_true_delivery.v.
+    // --------------------------------------------------------------------
+    reg symmetry_latched_q;
+    reg error_latched_q;
 
-    wire [2:0]               wf_state       = state;
+    assign symmetry_latched_o = symmetry_latched_q;
+    assign error_latched_o    = error_latched_q;
 
-    wire [WARP_WIDTH-1:0]    wf_warp_sum_x  = warp_sum_x;
-    wire [WARP_WIDTH-1:0]    wf_warp_sum_y  = warp_sum_y;
-    wire [WARP_WIDTH-1:0]    wf_warp_sum_z  = warp_sum_z;
-    wire [ERROR_WIDTH-1:0]   wf_error_sum   = error_sum;
+	parameter [3:0] ADDR_STATE_SEAL = 4'h5;
+	
+	...
+	
+	always @(posedge clk or negedge rst_n) begin
+	    if (!rst_n) begin
+	        symmetry_latched_q <= 1'b0;
+	        error_latched_q    <= 1'b0;
+	    end else begin
+	        if (state_i == ADDR_STATE_SEAL) begin
+	            symmetry_latched_q <= symmetry_ok_i;
+	            error_latched_q    <= error_ok_i;
+	        end
+	    end
+	end
 
-    wire                     wf_symmetry_ok = symmetry_ok;
-    wire                     wf_error_ok    = error_ok;
-    wire                     wf_true_deliv  = true_delivery;
 
-    wire                     wf_seal_start  = seal_start;
-    wire                     wf_seal_ready  = seal_ready;
-    wire [255:0]             wf_seal        = seal;
-
-    // -------------------------------------------------------------------------
-    // Optional audit markers (informative)
-    // These appear in the simulator console and help auditors correlate
-    // waveform transitions with state machine events.
-    // -------------------------------------------------------------------------
-
-    always @(posedge clk) begin
-        if (wf_seal_start)
-            $display("[%0t] ISO16: seal_start asserted", $time);
-
-        if (wf_seal_ready)
-            $display("[%0t] ISO16: seal_ready asserted", $time);
-
-        // CHECK state = 4 in the canonical state machine
-        if (wf_state == 3'd4)
-            $display("[%0t] ISO16: CHECK: sym=%0d err=%0d true=%0d",
-                     $time, wf_symmetry_ok, wf_error_ok, wf_true_deliv);
+    // --------------------------------------------------------------------
+    // Simulation‑only annotation hook
+    // --------------------------------------------------------------------
+    // This block is ignored by synthesis tools and is provided solely
+    // for simulator logs and human‑readable traces.
+    // --------------------------------------------------------------------
+    // synthesis translate_off
+    initial begin
+        $display("[ISO‑16] Waveform logger active.");
+        $display("[ISO‑16] Observing: state, cycle, warp_sum_x, error_sum,");
+        $display("[ISO‑16]            symmetry_ok, error_ok, true_delivery,");
+        $display("[ISO‑16]            seal_start, seal_ready, seal_out.");
     end
-
-    // -------------------------------------------------------------------------
-    // NOTE:
-    // This module intentionally does NOT call $dumpvars or $dumpfile.
-    // The testbench controls waveform dumping so vendors can choose VCD/FSDB.
-    // -------------------------------------------------------------------------
+    // synthesis translate_on
 
 endmodule

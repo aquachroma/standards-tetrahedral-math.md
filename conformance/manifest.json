@@ -1,8 +1,0 @@
-{
-  "spec_version": "0.1",
-  "required_vectors": [
-    "ISO16-V0001-REFRACTION-INJECTION",
-    "ISO16-V0002-JITTER-BYPASS",
-    "ISO16-V0003-FULL-TRUE-PATH"
-  ]
-}
